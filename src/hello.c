@@ -86,7 +86,7 @@ static int __init hello_init(void) {
     }
 
     // Success.
-    LOG_INFO("Device %s registered successfully.", DEVICE_NAME);
+    LOG_INFO("Device %s registered successfully.\n", DEVICE_NAME);
     return retval;
 
 cleanup:
@@ -132,7 +132,7 @@ module_exit(hello_exit);
  * Returns 0. . 
  */
 static int hello_open(struct inode* inode, struct file* file) {
-    LOG_INFO("hello_open");
+    LOG_INFO("hello_open\n");
     return 0;
 }
 
@@ -146,7 +146,7 @@ static ssize_t hello_read(struct file* file, char* buf, size_t len, loff_t* off)
     const size_t messageLen = sizeof(message);
     unsigned long errorCount = 0;
 
-    LOG_INFO("hello_read");
+    LOG_INFO("hello_read\n");
 
     if (len < messageLen) {
         return 0;
@@ -173,7 +173,7 @@ static ssize_t hello_read(struct file* file, char* buf, size_t len, loff_t* off)
  * Returns 0.
  */
 static int hello_release(struct inode* inode, struct file* file) {
-    LOG_INFO("hello_release");
+    LOG_INFO("hello_release\n");
     return 0;
 }
 

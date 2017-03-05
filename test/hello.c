@@ -36,7 +36,7 @@ int main(int argc, const char** argv) {
     }
 
     close(fd);
-    printf("Read Message: '%s'", buf);
+    printf("Read Message: '%s'\n", buf);
     
     return 0;
 }
