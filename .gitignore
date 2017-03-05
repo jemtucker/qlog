@@ -3,6 +3,8 @@
 *.ko
 *.mod.c
 
+test/test_hello
+
 .tmp_versions/
 Module.symvers
 modules.order
