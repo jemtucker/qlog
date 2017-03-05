@@ -7,22 +7,22 @@
 
 #include "definitions.h"
 
-#define CLASS_NAME "hello"
-#define DEVICE_NAME "hellochar"
+#define CLASS_NAME "qlog"
+#define DEVICE_NAME "qlogc"
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Jem Tucker");
-MODULE_DESCRIPTION("A simple Linux driver for fun.");
+MODULE_DESCRIPTION("Definitely NOT a key logger.");
 MODULE_VERSION("0.1");
 
-static int hello_open(struct inode*, struct file*);
-static ssize_t hello_read(struct file*, char*, size_t, loff_t*);
-static int hello_release(struct inode*, struct file*);
+static int qlog_open(struct inode*, struct file*);
+static ssize_t qlog_read(struct file*, char*, size_t, loff_t*);
+static int qlog_release(struct inode*, struct file*);
 
 static struct file_operations fops = {
-    .open = hello_open,
-    .read = hello_read,
-    .release = hello_release
+    .open = qlog_open,
+    .read = qlog_read,
+    .release = qlog_release
 };
 
 // Device statics
@@ -35,7 +35,7 @@ static volatile size_t s_numopen = 0;
  * Kernel module Initialisation function
  * @return Returns 0 if successful
  */ 
-static int __init hello_init(void) {
+static int __init qlog_init(void) {
     int retval = 0;
 
     LOG_INFO("Initialising device - %s\n", DEVICE_NAME);
@@ -108,7 +108,7 @@ cleanup:
  * Free all resources and exit. This function assumes the module has
  * been initialised completely.  
  */
-static void __exit hello_exit(void) {
+static void __exit qlog_exit(void) {
     LOG_INFO("Unloading device %s\n", DEVICE_NAME);
 
     // Cleanup the device
@@ -124,15 +124,15 @@ static void __exit hello_exit(void) {
     unregister_chrdev(s_major, DEVICE_NAME);
 }
  
-module_init(hello_init);
-module_exit(hello_exit);
+module_init(qlog_init);
+module_exit(qlog_exit);
 
 /**
  * Open device file operation
  * Returns 0. . 
  */
-static int hello_open(struct inode* inode, struct file* file) {
-    LOG_INFO("hello_open\n");
+static int qlog_open(struct inode* inode, struct file* file) {
+    LOG_INFO("qlog_open\n");
     return 0;
 }
 
@@ -141,12 +141,12 @@ static int hello_open(struct inode* inode, struct file* file) {
  * Returns a message to the caller in 'buf' and the number of bytes copied. On error
  * a negative error code will be returned. 
  */
-static ssize_t hello_read(struct file* file, char* buf, size_t len, loff_t* off) {
+static ssize_t qlog_read(struct file* file, char* buf, size_t len, loff_t* off) {
     const char message[] = "Hello from the kernel!";
     const size_t messageLen = sizeof(message);
     unsigned long errorCount = 0;
 
-    LOG_INFO("hello_read\n");
+    LOG_INFO("qlog_read\n");
 
     if (len < messageLen) {
         return 0;
@@ -172,8 +172,8 @@ static ssize_t hello_read(struct file* file, char* buf, size_t len, loff_t* off)
  * Device release file operation.
  * Returns 0.
  */
-static int hello_release(struct inode* inode, struct file* file) {
-    LOG_INFO("hello_release\n");
+static int qlog_release(struct inode* inode, struct file* file) {
+    LOG_INFO("qlog_release\n");
     return 0;
 }
 

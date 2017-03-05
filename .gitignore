@@ -3,7 +3,7 @@
 *.ko
 *.mod.c
 
-test/test_hello
+test/test_qlog
 
 .tmp_versions/
 Module.symvers
