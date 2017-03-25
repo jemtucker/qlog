@@ -5,6 +5,7 @@
 
 /**
  * Register for callbacks from the keyboard driver
+ * @return 0 on success
  */
 int keylogger_register(void);
 
@@ -16,7 +17,8 @@ void keylogger_unregister(void);
 /**
  * Return the last keypress events, flushing them from the internal
  * buffer.
- * Returns the number of chars copied on success otherwise a negative error code.
+ * @return Returns the number of chars copied on success otherwise a negative
+ * error code.
  */
 ssize_t keylogger_last_events(char* buf, size_t len);
 

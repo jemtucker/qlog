@@ -21,6 +21,8 @@ static int qlog_open(struct inode*, struct file*);
 static ssize_t qlog_read(struct file*, char*, size_t, loff_t*);
 static int qlog_release(struct inode*, struct file*);
 
+// File operations structure defining the operations our device exposes.
+// We currently only support open, read and close.
 static struct file_operations fops = {
     .open = qlog_open,
     .read = qlog_read,
@@ -145,12 +147,13 @@ static void __exit qlog_exit(void) {
     unregister_chrdev(s_major, DEVICE_NAME);
 }
 
+// Register the initialisation and exit functions
 module_init(qlog_init);
 module_exit(qlog_exit);
 
 /**
- * Open device file operation
- * Returns 0. .
+ * Open device file operation.
+ * @return Returns 0 always...
  */
 static int qlog_open(struct inode* inode, struct file* file) {
     LOG_INFO("qlog_open\n");
@@ -158,9 +161,9 @@ static int qlog_open(struct inode* inode, struct file* file) {
 }
 
 /**
- * Device read file operation
- * Returns a message to the caller in 'buf' and the number of bytes copied. On error
- * a negative error code will be returned.
+ * Device read file operation. Returns a message to the caller in 'buf' and the
+ * number of bytes copied.
+ * @return The number of bytes copied if successful, or a negative error code.
  */
 static ssize_t qlog_read(struct file* file, char* buf, size_t len, loff_t* off) {
     char* kbuf;
@@ -200,7 +203,7 @@ static ssize_t qlog_read(struct file* file, char* buf, size_t len, loff_t* off) 
 
 /**
  * Device release file operation.
- * Returns 0.
+ * @return Returns 0.
  */
 static int qlog_release(struct inode* inode, struct file* file) {
     LOG_INFO("qlog_release\n");
